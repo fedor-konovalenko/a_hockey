@@ -4,13 +4,14 @@ import uvicorn
 from pydantic import BaseModel
 import os
 import shutil
-
+import logging
 from utils import setup_logging
 from clear_game import Helper, ClearGame
 from recognition import Numbers
 from tracking import TrackingPlayer
 
 app = FastAPI()
+_logger = logging.getLogger(__name__)
 
 
 class GlobalState:
@@ -29,7 +30,13 @@ class GlobalState:
     weights = os.path.join(os.path.dirname(__file__), 'weights/resnet.pth')
     yolo_path = os.path.join(os.path.dirname(__file__), 'yolov8n.pt')
     deva_path = os.path.join(os.path.dirname(__file__), '../Tracking-Anything-with-DEVA')
-    logo_path = os.path.join(os.path.dirname(__file__), 'logo.png')
+
+
+helper = Helper(input_dir=GlobalState.video_file_path, convert_dir=GlobalState.convert_file_path)
+clear = ClearGame(convert_dir=GlobalState.convert_file_path, clear_dir=GlobalState.clear_file_path)
+detector = Numbers(input_dir=GlobalState.clear_file_path, output_dir=GlobalState.detection_file_path,
+                   weights=GlobalState.weights, emb_weights=GlobalState.weights, yolo_model=GlobalState.yolo_path)
+tracker = TrackingPlayer(clear_dir=GlobalState.clear_file_path, final_dir=GlobalState.result_file_path)
 
 
 @app.get("/")
@@ -64,44 +71,49 @@ class GameFeatures(BaseModel):
     game_id: int | None = None
     game_link: str | None = None
     token: str | None = None
-    player_id: list | None = None
-    player_number: list | None = None
-    team_id: int | None = None
+    player_ids: list | None = None
+    player_numbers: list | None = None
+    team_ids: list | None = None
 
 
 class PlayerFeatures(BaseModel):
-    game_id: int | None = None
-    player_id: int | None = None
+    game_link: str | None = None
+    token: str | None = None
+    player_number: int | None = None
     frames: list | None = None
     boxes: list | None = None
 
 
 @app.post("/process")
 def prediction(game_features: GameFeatures):
+    """TODO add check of video (too less detections for example)"""
     v = game_features.model_dump()
-    helper = Helper(input_dir=GlobalState.video_file_path, convert_dir=GlobalState.convert_file_path)
-    clear = ClearGame(convert_dir=GlobalState.convert_file_path, clear_dir=GlobalState.clear_file_path)
-    detector = Numbers(GlobalState.clear_file_path, GlobalState.detection_file_path, GlobalState.weights,
-                       GlobalState.weights, GlobalState.yolo_path)
     helper.download_file(link=v['game_link'], token=v['token'], path=None, i=99)
+    _logger.info(f'Downloading video...')
     helper.convert_file()
+    _logger.info(f'Converting video...')
     ad_frames = clear.clear_game()
+    _logger.info(f'Clearing video...')
     all_boxes_pth = detector.detect(GlobalState.clear_file_path, ad_frames, iou=.25)
-    tracker = TrackingPlayer(GlobalState.clear_file_path, all_boxes_pth, GlobalState.result_file_path, v['player_number'][0])
-    full_track_pth = tracker.get_bbox_track(v['game_link'])
-    correct_full_track = detector.predict_after(.8, full_track_pth, GlobalState.clear_file_path)
+    _logger.info(f'Detecting people...')
+    full_track_pth = tracker.get_bbox_track(all_boxes_pth, v['player_numbers'], v['player_ids'],
+                                            v['game_id'], v['team_ids'])
+    _logger.info(f'Tracking in process...')
+    correct_full_track = detector.predict_after(.5, full_track_pth, GlobalState.clear_file_path)
+    _logger.info(f'Preparing final tracking data...')
     return JSONResponse(content=correct_full_track)
 
 
 @app.post("/search")
 def track_player(player_features: PlayerFeatures):
     v = player_features.model_dump()
-    all_boxes = ''
-    tracker = TrackingPlayer(GlobalState.clear_file_path, all_boxes, GlobalState.result_file_path, 99)
-    video_pth = tracker.save_video_result(v['player_id'], None)
+    helper.download_file(link=v['game_link'], token=v['token'], path=None, i=99)
+    _logger.info(f'Downloading video...')
+    video_pth = tracker.save_video_result(GlobalState.video_file_path, v['player_number'], v['frames'], v['boxes'])
+    _logger.info(f'Preparing video for selected player...')
     return FileResponse(video_pth)
 
 
 if __name__ == "__main__":
-    setup_logging(loglevel="DEBUG")
+    setup_logging(loglevel="INFO")
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,7 +1,6 @@
 import os
 import warnings
 import json
-import shutil
 import numpy as np
 import time
 
@@ -31,7 +30,6 @@ class Numbers:
     def detect(self, in_folder: str, frames: list, iou: float) -> str:
         """load video and detect people on chosen frames, prepare 2 dictionaries: boxes more than 64x64 px for
         classifier and all boxes at frame - for tracker"""
-        print(f'I am detecting people on video.....')
         time.sleep(1)
         all_boxes = {}
         vname = 'test-detection'
@@ -44,23 +42,21 @@ class Numbers:
         return os.path.join(self.output_dir, f"{vname}_all_boxes.json")
 
     def predict_after(self, class_threshold: float, ann_path: str, video_path: str, test=False) -> tuple:
-        """this method allows usage of the classifier after tracking"""
-        print(f'I am recognizing numbers for tracked people.....')
+        """this method allows usage of the classifier after tracking
+        it loads frames of video, crops them according to tracking results and recognizes numbers"""
         time.sleep(1)
         with open(ann_path) as fid:
             track_results = json.load(fid)
         numbers = []
         confs = []
-        for seg in track_results['annotations']:
-            for boxes in seg['segmentations']:
-                pred = 42
-                cfs = np.random.random()
-                if cfs < class_threshold:
-                    pred = 'unknown'
-                boxes['number'] = pred
-                boxes['confidence'] = cfs
-                numbers.append(pred)
-                confs.append(cfs)
+        for pl in track_results['tracking']:
+            pred = 42
+            cfs = np.random.random()
+            if cfs < class_threshold:
+                pred = 'unknown'
+            pl['predicted_number'] = pred
+            numbers.append(pred)
+            confs.append(cfs)
         with open(ann_path.split('.')[0] + '_num.json', "w+") as fid_r:
             json.dump(track_results, fid_r)
         return track_results

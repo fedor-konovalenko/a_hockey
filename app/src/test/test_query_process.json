@@ -1,1 +1,1 @@
-{"game_id": 0, "game_link":  "https://disk.yandex.ru/i/JLh__1IbAfmK-Q", "token": "y0_AgAAAAA8cbR4AAtjkQAAAAD9CA6QAAA7HIEFePpA7qKzGdujIAwVc_JH9w", "player_id": [100, 200, 300], "player_number": [1, 2, 3], "team_id": 21}
+{"game_id": 0, "game_link":  "https://disk.yandex.ru/i/JLh__1IbAfmK-Q", "token": "y0_AgAAAAA8cbR4AAtjkQAAAAD9CA6QAAA7HIEFePpA7qKzGdujIAwVc_JH9w", "player_ids": [100, 200, 300, 400], "player_numbers": [1, 2, 3, 4], "team_ids": [21, 22]}
