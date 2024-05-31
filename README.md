@@ -33,9 +33,12 @@ Two types of requests (except service ones):
   cd app
   docker build --tag hockey .
   docker run --rm -p 8010:8000 --name video hockey
+  ```
+  then the FastApi application will be available at http://localhost:8010/
+  ```bash
   docker exec -it [CONTAINER_ID] sh
   cd test
   python3 test.py
   ```
   
-  then the FastApi application will be available at http://localhost:8010/
+  
