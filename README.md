@@ -16,12 +16,13 @@ python3 app.py
 then the FastApi application will be available at http://localhost:8000/
 
 Two types of requests (except service ones):
-- post request for download, clean, process video and prepare .json file with tracking results
+- post request for download, clean, process video and prepare .json file with tracking results. The tracking result in .json format will be saved in temporary directory /app/src/tracking and will be returned as JsonResponse
   ```bash
   cd test
   python3 test.py
   ```
-- post request for preparing the video with selected player according to previously saved to database tracking results
+  
+- post request for preparing the video with selected player according to previously saved to database tracking results. The result in .mp4 format will be saved in temporary directory /app/src/tracking and will be returned as FileResponse
   ```bash
   cd test
   python3 test_search.py
