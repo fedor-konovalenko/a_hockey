@@ -23,7 +23,7 @@ class TrackingPlayer:
                      'frames': list(map(int, np.random.randint(1000, 5000, 2))),
                      'boxes': [list(map(int, np.random.randint(100, 500, 4))),
                                list(map(int, np.random.randint(100, 500, 4)))],
-                     'time': '00:15:00-00:20:00'}
+                     'time': ['00:15:00-00:20:00', '00:21:00-00:22:02']}
                 )
 
             with open(os.path.join(self.final, 'tracking_result.json'), 'w') as f:
