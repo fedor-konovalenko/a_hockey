@@ -7,7 +7,7 @@ ___
 ### local
 
 ```bash
-git clone git@github.com:fedor-konovalenko/a_hockey.git
+git clone git@github.com:fedor-konovalenko/a_hockey.git -b main --single-branch
 cd app
 pip install -r requirements.txt
 cd src
@@ -30,7 +30,7 @@ Two types of requests (except service ones):
   ____
   ### Docker
   ```bash
-  git clone git@github.com:fedor-konovalenko/a_hockey.git
+  git clone git@github.com:fedor-konovalenko/a_hockey.git -b main --single-branch
   cd app
   docker build --tag hockey .
   docker run --rm -p 8010:8000 --name video hockey
