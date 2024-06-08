@@ -2,5 +2,5 @@
 ____
 ## GUI example
 
-<img src="https://github.com/fedor-konovalenko/the-lovely-bones/blob/main/pictures/5.png" width="700" height="200">
+<img src="https://github.com/fedor-konovalenko/a_hockey/blob/gradio_app/gradio_demo_app/1.jpeg" width="600" height="500">
   
