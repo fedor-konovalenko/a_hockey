@@ -18,25 +18,24 @@ class GlobalState:
     """
     Class to store global variables
     """
-
     team_list = None
     selected_player = None
     video_file_path = os.path.join(os.path.dirname(__file__), 'download/')
-    csv_file_path = os.path.join(os.path.dirname(__file__), 'team.csv')
     convert_file_path = os.path.join(os.path.dirname(__file__), 'convert/')
-    clear_file_path = os.path.join(os.path.dirname(__file__), 'clear/videos/')
+    clear_file_path = os.path.join(os.path.dirname(__file__), 'clear/')
     result_file_path = os.path.join(os.path.dirname(__file__), 'tracking/')
     detection_file_path = os.path.join(os.path.dirname(__file__), 'recognition/')
-    weights = os.path.join(os.path.dirname(__file__), 'weights/resnet.pth')
-    yolo_path = os.path.join(os.path.dirname(__file__), 'yolov8n.pt')
+    frame_step = 5
     deva_path = os.path.join(os.path.dirname(__file__), '../Tracking-Anything-with-DEVA')
 
 
 helper = Helper(input_dir=GlobalState.video_file_path, convert_dir=GlobalState.convert_file_path)
 clear = ClearGame(convert_dir=GlobalState.convert_file_path, clear_dir=GlobalState.clear_file_path)
-detector = Numbers(input_dir=GlobalState.clear_file_path, output_dir=GlobalState.detection_file_path,
-                   weights=GlobalState.weights, emb_weights=GlobalState.weights, yolo_model=GlobalState.yolo_path)
-tracker = TrackingPlayer(clear_dir=GlobalState.clear_file_path, final_dir=GlobalState.result_file_path)
+detector = Numbers(input_dir=GlobalState.convert_file_path, clear_dir=GlobalState.clear_file_path,
+                   output_dir=GlobalState.detection_file_path, emb_mode='resnet')
+
+
+# tracker = TrackingPlayer(clear_dir=GlobalState.clear_file_path, final_dir=GlobalState.result_file_path)
 
 
 @app.get("/")
@@ -49,7 +48,6 @@ def main():
     shutil.rmtree(os.path.join(os.path.dirname(__file__), 'tracking/'), ignore_errors=True)
     os.mkdir(os.path.join(os.path.dirname(__file__), 'convert/'))
     os.mkdir(os.path.join(os.path.dirname(__file__), 'clear/'))
-    os.mkdir(os.path.join(os.path.dirname(__file__), 'clear/videos/'))
     os.mkdir(os.path.join(os.path.dirname(__file__), 'download/'))
     os.mkdir(os.path.join(os.path.dirname(__file__), 'recognition/'))
     os.mkdir(os.path.join(os.path.dirname(__file__), 'tracking/'))
@@ -86,30 +84,40 @@ class PlayerFeatures(BaseModel):
 
 @app.post("/process")
 def prediction(game_features: GameFeatures):
-    """TODO add check of video (too less detections for example)"""
     v = game_features.model_dump()
-    helper.download_file(link=v['game_link'], token=v['token'], path=None, i=99)
     _logger.info(f'Downloading video...')
-    helper.convert_file()
+    raw_name = helper.download_file(link=v['game_link'], token=v['token'], path=None)
+    if raw_name == 'FAIL':
+        msg = f'Cannot download the video'
+        _logger.error(msg)
+        return JSONResponse(content={'error': msg})
     _logger.info(f'Converting video...')
-    ad_frames = clear.clear_game()
-    _logger.info(f'Clearing video...')
-    all_boxes_pth = detector.detect(GlobalState.clear_file_path, ad_frames, iou=.25)
+    converted_name = helper.convert_file(video_name=raw_name)
+    _logger.info(f'Searching frames with advertisement in video...')
+    ad_frames = clear.get_advertising_frames(video_name=converted_name)
     _logger.info(f'Detecting people...')
-    full_track_pth = tracker.get_bbox_track(all_boxes_pth, v['player_numbers'], v['player_ids'],
-                                            v['game_id'], v['team_ids'])
-    _logger.info(f'Tracking in process...')
-    correct_full_track = detector.predict_after(.5, full_track_pth, GlobalState.clear_file_path)
-    _logger.info(f'Preparing final tracking data...')
+    all_boxes = detector.detect(in_folder=GlobalState.convert_file_path, video_name=converted_name,
+                                adv_name=ad_frames, fstep=GlobalState.frame_step, iou=.5)
+    if all_boxes['status'] == 'FAIL':
+        msg = f'too less detections'
+        _logger.error(msg)
+        return JSONResponse(content={'error': msg})
+
+    # full_track_pth = tracker.get_bbox_track(all_boxes_pth, v['player_numbers'], v['player_ids'],
+    # v['game_id'], v['team_ids'])
+    # _logger.info(f'Tracking in process...')
+    # correct_full_track = detector.predict_after(.5, full_track_pth, GlobalState.clear_file_path)
+    # _logger.info(f'Preparing final tracking data...')
+    correct_full_track = all_boxes
     return JSONResponse(content=correct_full_track)
 
 
 @app.post("/search")
 def track_player(player_features: PlayerFeatures):
     v = player_features.model_dump()
-    helper.download_file(link=v['game_link'], token=v['token'], path=None, i=99)
+    raw_name = helper.download_file(link=v['game_link'], token=v['token'], path=None)
     _logger.info(f'Downloading video...')
-    video_pth = tracker.save_video_result(GlobalState.video_file_path, v['player_number'], v['frames'], v['boxes'])
+    video_pth = 'ppp'  # tracker.save_video_result(GlobalState.video_file_path, v['player_number'], v['frames'], v['boxes'])
     _logger.info(f'Preparing video for selected player...')
     return FileResponse(video_pth)
 
@@ -117,3 +125,4 @@ def track_player(player_features: PlayerFeatures):
 if __name__ == "__main__":
     setup_logging(loglevel="INFO")
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
