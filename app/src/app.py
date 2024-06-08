@@ -10,6 +10,8 @@ from clear_game import Helper, ClearGame
 from recognition import Numbers
 from tracking import TrackingPlayer
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 app = FastAPI()
 _logger = logging.getLogger(__name__)
 
@@ -33,8 +35,6 @@ helper = Helper(input_dir=GlobalState.video_file_path, convert_dir=GlobalState.c
 clear = ClearGame(convert_dir=GlobalState.convert_file_path, clear_dir=GlobalState.clear_file_path)
 detector = Numbers(input_dir=GlobalState.convert_file_path, clear_dir=GlobalState.clear_file_path,
                    output_dir=GlobalState.detection_file_path, emb_mode='resnet')
-
-
 # tracker = TrackingPlayer(clear_dir=GlobalState.clear_file_path, final_dir=GlobalState.result_file_path)
 
 
@@ -84,6 +84,7 @@ class PlayerFeatures(BaseModel):
 
 @app.post("/process")
 def prediction(game_features: GameFeatures):
+    """full processing of the new video"""
     v = game_features.model_dump()
     _logger.info(f'Downloading video...')
     raw_name = helper.download_file(link=v['game_link'], token=v['token'], path=None)
@@ -108,8 +109,7 @@ def prediction(game_features: GameFeatures):
     # _logger.info(f'Tracking in process...')
     # correct_full_track = detector.predict_after(.5, full_track_pth, GlobalState.clear_file_path)
     # _logger.info(f'Preparing final tracking data...')
-    correct_full_track = all_boxes
-    return JSONResponse(content=correct_full_track)
+    return JSONResponse(content=all_boxes)
 
 
 @app.post("/search")
@@ -125,4 +125,3 @@ def track_player(player_features: PlayerFeatures):
 if __name__ == "__main__":
     setup_logging(loglevel="INFO")
     uvicorn.run(app, host="0.0.0.0", port=8000)
-

@@ -17,7 +17,7 @@ HOCKEY_LIST = ['hockey', 'ice', 'stick', 'puck', 'goal', 'goalie', 'net', 'skate
 
 def write_new_file(file: str, output_file: str, fps=25) -> tuple:
     """function for writing ready video file
-    TODO: move inside the Helper class"""
+    TODO: move in the Helper class"""
     cap = cv2.VideoCapture(file)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -65,7 +65,7 @@ class ClearGame:
         self.processor = BlipProcessor.from_pretrained('Salesforce/blip-image-captioning-base')
         self.model = BlipForConditionalGeneration.from_pretrained('Salesforce/blip-image-captioning-base').to(device)
 
-    def cap_video(self, video: str) -> tuple:
+    def __cap_video__(self, video: str) -> tuple:
         """loads converted video"""
         cap = cv2.VideoCapture(video)
         filename = os.path.basename(video).split('.')[0]
@@ -73,19 +73,19 @@ class ClearGame:
         count_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         return cap, filename, fps, count_frames
 
-    def get_label(self, text: str) -> int:
-        """checks the frame description"""
+    def __get_label__(self, text: str) -> int:
+        """checks the frame description: is it hockey or not"""
         if ('hockey' in text) or (len([word for word in text.split() if word in HOCKEY_LIST]) > 0):
             return 1
         return 0
 
-    def get_frame(self, cap: cv2.VideoCapture, i: int) -> np.array:
+    def __get_frame__(self, cap: cv2.VideoCapture, i: int) -> np.array:
         """get single frame"""
         cap.set(cv2.CAP_PROP_POS_FRAMES, i - 1)
         _, frame = cap.read()
         return frame
 
-    def get_text(self, frame: np.array) -> str:
+    def __get_text__(self, frame: np.array) -> str:
         """get text description of the frame"""
         inputs = self.processor(frame, text='', return_tensors='pt')
         inputs = inputs.to(device)
@@ -95,24 +95,24 @@ class ClearGame:
         gc.collect()
         return text
 
-    def get_result(self, cap: cv2.VideoCapture, item: int, filename: str) -> tuple:
+    def __get_result__(self, cap: cv2.VideoCapture, item: int, filename: str) -> tuple:
         """prepares info about frame"""
-        frame = self.get_frame(cap, item)
-        text = self.get_text(frame)
-        label = self.get_label(text)
+        frame = self.__get_frame__(cap, item)
+        text = self.__get_text__(frame)
+        label = self.__get_label__(text)
         return [f'{filename}_{item - 1}.jpg', item - 1, text, label], label
 
-    def get_info_about_game(self, cap: cv2.VideoCapture, fps: int, count_frames: int, filename: str) -> list:
+    def __get_info_about_game__(self, cap: cv2.VideoCapture, fps: int, count_frames: int, filename: str) -> list:
         """prepares values of video description and time labels for frames"""
         info_list = []
         last_value = 0
         time = 120
         for i in range(fps * time, count_frames, fps * time):
-            result, label = self.get_result(cap, i, filename)
+            result, label = self.__get_result__(cap, i, filename)
             if label != last_value:
                 y = i - 250
                 while y > i - fps * time:
-                    result, lbl = self.get_result(cap, y, filename)
+                    result, lbl = self.__get_result__(cap, y, filename)
                     y -= 250
                     info_list.append(result)
             else:
@@ -121,7 +121,7 @@ class ClearGame:
         info_list = sorted(info_list, key=lambda x: x[1])
         return info_list
 
-    def get_index_for_game(self, info_list: list, advertising=1) -> list:
+    def __get_index_for_game__(self, info_list: list, advertising=1) -> list:
         """prepares indexes for video description"""
         last_value = info_list[0][-1]
         x = info_list[0][1]
@@ -137,9 +137,9 @@ class ClearGame:
     def get_advertising_frames(self, video_name: str) -> str:
         """returns dictionary with list of frames with advertisement"""
         file = os.path.join(self.convert, video_name)
-        cap_, filename, fps, count_frames = self.cap_video(file)
-        game_info = self.get_info_about_game(cap_, fps, count_frames, filename)
-        advertising_frames = self.get_index_for_game(game_info, 0)
+        cap_, filename, fps, count_frames = self.__cap_video__(file)
+        game_info = self.__get_info_about_game__(cap_, fps, count_frames, filename)
+        advertising_frames = self.__get_index_for_game__(game_info, 0)
         list_frames = []
         if advertising_frames[0][1] < 5000:
             list_frames = [y for y in range(0, advertising_frames[0][1])]
