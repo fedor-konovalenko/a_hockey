@@ -69,15 +69,14 @@ python3 app.py
 
 then the FastApi application will be available at http://localhost:8000/
 
+Test scripts for simulate the requests are available in app/src/test folder
+
 Two post-requests are available:
 
 **Processing Request**
 
 Post request for download, clean, process video and prepare .json file with tracking results. The tracking result in .json format will be saved in temporary directory /app/src/recognition and will be returned as JsonResponse
-  ```bash
-  cd test
-  python3 test.py
-  ```
+
 The request structure:
 
 ```python
