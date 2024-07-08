@@ -6,13 +6,25 @@ Examples of queries are located in app/src/test/ folder
 ___
 ### local
 
+**Clone the repo**
+
 ```bash
-git clone git@github.com:fedor-konovalenko/a_hockey.git
+git clone git@github.com:fedor-konovalenko/a_hockey.git -b main
 cd app
 pip install -r requirements.txt
+```
+**Save pretrained weights**
+
+download with these links:
+- resnet18 weights
+- resnet50 weights
+
+to app/src/weights folder
+
 cd src
 python3 app.py
-```
+
+
 then the FastApi application will be available at http://localhost:8000/
 
 Two types of requests (except service ones):
