@@ -4,13 +4,15 @@ ______
 
 It is the video-processing service for tracking the hockey players on videos of hockey games.
 It was developed for [Adaptive Hockey (hockey for people with disabilities) Federation](https://paraicehockey.ru/).
+
+
 The main parts of the service:
 - receiving the query from the backend
 - downloading the video
 - converting the video with ffmpeg
 - selecting frames without advertisement in order not to use them
 - tracking players
-- recognixing players' numbers
+- recognizing players' numbers
 - collecting data and preparing JSON response to the backend
 
 *Fig. 1 - The service scheme*
@@ -21,7 +23,7 @@ ___
 This repo contains branches:
 - main - here are necessary scripts and instructions for running the service
 - gradio_app - scripts for demo application based on Gradio
-- notebooks - experimental noteboks and researches, include:
+- notebooks - experimental notebooks and researches, include:
   - experiments with tracking
   - experiments with video processing
   - training the number recognizing model
@@ -152,18 +154,22 @@ The response example:
   ____
   ### Docker
   ```bash
-  git clone git@github.com:fedor-konovalenko/a_hockey.git
-  cd app
-  docker build --tag hockey .
-  docker run --rm -p 8010:8000 --name video hockey
-  ```
-  then the FastApi application will be available at http://localhost:8010/
-  ```bash
-  docker exec -it [CONTAINER_ID] sh
-  cd test
-  python3 test.py
+ some code...
   ```
 ___
-## Classes and Methods Description
-  
+## Classes and Public Methods Description
+
+|**Class**.method|**Parameters**|**Returns**|**Comments**|
+|--|--|--|--|
+|**Helper**|input_dir: str, <br /> convert_dir: str||Class for preparing video. <br /> Required parameters - <br /> path to directory for downloading video <br />and for converting video|
+|Helper.download_file|link: str, <br /> token: str|str|Downloads video from Yandex Disk, <br /> returns the raw video name|
+|Helper.convert_file|video_name: str|str|Converts video with ffmeg, returns the <br /> name of the converted video|
+|**ClearGame**|convert_dir: str, <br /> clear_dir: str||Class for searching frames without a hockey game. <br /> Required parameters - <br /> path to directory with converted <br /> video and to directory for save results|
+|ClearGame.get_advertising_frames|video_name: str|str|With image2text model searches frames without hockey game,<br />  prepares the .json file with frames and returns it's name|
+|**Tracking**|convert_dir: str, <br /> clear_dir: str, <br /> final_dir: str||Class for tracking players with DEVA. <br /> Required parameters - <br /> path to directory with converted video, <br /> with frames without game and for tracking results|
+|Tracking.get_bbox_track|video_name: str|str|Tracks players, prepare json file with tracked objects <br /> and its frames, returns the file name|
+|**Numbers**|input_dir: str, <br />clear_dir: str, <br />output_dir: str, emb_mode: str||Class for recognizing numbers. <br /> Required parameters- <br /> path to directory with converted video, with frames without game and for recognizing results  <br /> and the embedding model mode (ResNet or DinoV2)|
+|Numbers.predict_after|class_threshold: float,<br /> ann_path: str, <br />video_path: str, <br />tms: list, <br />box_min_size: int|list|Recognizes numbers on tracked objects, <br />compare numbers with team lists, writes the results to .json file, returns list if dictionaries|
+
+
   
