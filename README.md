@@ -69,6 +69,10 @@ python3 app.py
 
 then the FastApi application will be available at http://localhost:8000/
 
+Two post-requests are available:
+
+**Processing Request**
+
 Post request for download, clean, process video and prepare .json file with tracking results. The tracking result in .json format will be saved in temporary directory /app/src/recognition and will be returned as JsonResponse
   ```bash
   cd test
@@ -85,6 +89,24 @@ The request structure:
  "team_ids": [int, int]}
 ```
 
+The test script example
+
+```python
+import requests
+import json
+
+def main():
+    with open("test_query_process.json", "r") as fid:
+        data = json.load(fid)
+    r = requests.post("http://localhost:8000/process", json=data)
+    if r.status_code != 200:
+        print(r.status_code)
+    print(r.json())
+
+if __name__ == "__main__":
+    main()
+```
+
 And after processing the video the response is returned:
 
 ```python
@@ -93,12 +115,41 @@ And after processing the video the response is returned:
  players: [{"player_id": int,
             "team_id": int,
             "number": int,
-            "counter": int,
             "frames": [int, int, ...]}
            ]}
  "player_numbers": [[int, int, ...], [int, int, ...]],
  "team_ids": [int, int]}
 ```
+
+**Clean Request**
+
+Strongly recommended after each service usage. Removes all content in temporary service directories.
+
+The test script example
+
+```python
+import requests
+import json
+
+def main():
+    r = requests.post("http://localhost:8000/clean")
+    if r.status_code != 200:
+        print(r.status_code)
+    print(r.json())
+
+if __name__ == "__main__":
+    main()
+
+```
+
+The response example:
+
+```python
+{"Removed": str,
+ "Objects": int,
+ "Size": str})
+```
+
   ____
   ### Docker
   ```bash
