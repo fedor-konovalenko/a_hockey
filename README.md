@@ -2,8 +2,8 @@
 ____
 ## List of notebooks
 ____
-- 1;;;;
-- 122;;;;
-- 3;;;
+- search_trackers.ipynb - trackers experiments
+- video_preprocessing_text_recognition.ipynb - video preprocessing
+- training.ipynb - train ResNet on SVHN mode
   
   
