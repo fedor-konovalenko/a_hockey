@@ -1,0 +1,11 @@
+**/.ipynb_checkpoints
+**/venv/
+**/.idea/
+__pycache__/
+**/clear/
+**/convert/
+**/download/
+**/recognition/
+**/tracking/
+*.pt
+*.png
