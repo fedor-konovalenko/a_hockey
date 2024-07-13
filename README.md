@@ -67,13 +67,13 @@ The service was tested for:
 - torch==2.0.1+cu117 / torchvision==0.15.2+cu117
 - torch==1.13.1+cu116 / torchvision==0.14.1+cu116
 
-**InstallGrounding DINO and Segment Anything Model**
+**Install Grounding DINO and Segment Anything Model**
 
 In this project the Grounded SegmentAnything is used as image processing model. It consists of two components: Grounding DINO - for zero-shot detection and Segment Anything Model (SAM) - for converting boxes into segmentations. 
 
 ```bash
 cd ..
-!git clone https://github.com/hkchengrex/Grounded-Segment-Anything
+git clone https://github.com/hkchengrex/Grounded-Segment-Anything
 export CUDA_HOME=/usr/local/cuda
 export BUILD_WITH_CUDA=True
 export AM_I_DOCKER=False
@@ -89,11 +89,11 @@ pip install -q -e segment_anything
 cd ..
 git clone https://github.com/hkchengrex/Tracking-Anything-with-DEVA
 cd Tracking-Anything-with-DEVA
-!pip install -q -e .
-!wget -q -P ./saves/ https://github.com/hkchengrex/Tracking-Anything-with-DEVA/releases/download/v1.0/DEVA-propagation.pth
-!wget -q -P ./saves/ https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
-!wget -q -P ./saves/ https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-!wget -q -P ./saves/ https://github.com/hkchengrex/Tracking-Anything-with-DEVA/releases/download/v1.0/GroundingDINO_SwinT_OGC.py
+pip install -q -e .
+wget -q -P ./saves/ https://github.com/hkchengrex/Tracking-Anything-with-DEVA/releases/download/v1.0/DEVA-propagation.pth
+wget -q -P ./saves/ https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+wget -q -P ./saves/ https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+wget -q -P ./saves/ https://github.com/hkchengrex/Tracking-Anything-with-DEVA/releases/download/v1.0/GroundingDINO_SwinT_OGC.py
 cd ..
 cd app
 mv result_utils.py /Tracking-Anything-with-DEVA/deva/inference/result_utils.py
@@ -223,7 +223,8 @@ The response example:
   ____
   ### Docker
   ```bash
- some code...
+docker pull fdkonovalenko/adaptive_hockey:latest
+docker run --rm -it  -p 8010:8000 --gpus all --name hockey fdkonovalenko/adaptive_hockey:latest
   ```
 
 The image is based on [nvidia/cuda:11.6.2-cudnn8-devel-ubuntu20.04](https://hub.docker.com/layers/nvidia/cuda/11.6.2-cudnn8-devel-ubuntu20.04/images/sha256-77532dc0c82a1914809de4afde61840b94549c133583c3312a91e01d3942e1cd) image. 
