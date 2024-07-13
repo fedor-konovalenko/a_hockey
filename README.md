@@ -1,6 +1,6 @@
 # a_hockey
 ______
-## The Service Description
+## The Application Description
 
 It is the video-processing service for tracking the hockey players on videos of hockey games.
 It was developed for [Adaptive Hockey (hockey for people with disabilities) Federation](https://paraicehockey.ru/).
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 ```
 **Download pretrained weights and useful script for Deva Tracker**
 
-download with these links:
+download weights with these links:
 - [resnet50 weights](https://drive.google.com/file/d/1R-55YD6UPiNi3HXkjYtCrY1HQYOT50Lj/view?usp=sharing)
 - [resnet18 weights](https://drive.google.com/file/d/1x6uqQ_jllDkZkAE0JKJ0PxbMIZE3bRhg/view?usp=sharing)
 
@@ -67,9 +67,9 @@ The service was tested for:
 - torch==2.0.1+cu117 / torchvision==0.15.2+cu117
 - torch==1.13.1+cu116 / torchvision==0.14.1+cu116
 
-**Install Grounding DINO and Segment Anything Model**
+**InstallGrounding DINO and Segment Anything Model**
 
-We use grounded segment anything as our image model. It consists of two components: Grounding DINO - for zero-shot detection and Segment Anything Model (SAM) - for converting boxes into segmentations. 
+In this project the Grounded SegmentAnything is used as image processing model. It consists of two components: Grounding DINO - for zero-shot detection and Segment Anything Model (SAM) - for converting boxes into segmentations. 
 
 ```bash
 cd ..
@@ -99,6 +99,37 @@ cd app
 mv result_utils.py /Tracking-Anything-with-DEVA/deva/inference/result_utils.py
 ```
 
+**Service Structure**
+
+After all the manipulations above there should be the following folders' structure:
+
+```
+a_hockey
+│   README.md
+│   .gitignore    
+│
+└───app
+│   │   requirements.txt
+│   │   Makefile
+|   |   Dockerfile
+│   │
+│   └───src
+│       │   app.py
+│       │   clear_game.py
+|       |   recognition.py
+|       |   tracking.py
+│       │   utils.py
+|       |
+|       └───weights
+|       └───test
+│   
+└───Tracking-Anything-with-DEVA
+|   │   ...
+|   
+└───Grounded-Segment-Anything
+    │   ...
+```
+
 **Run the FastApi app**
 
 ```bash
@@ -114,7 +145,7 @@ Two post-requests are available:
 
 **Processing Request**
 
-Post request for download, clean, process video and prepare .json file with tracking results. The tracking result in .json format will be saved in temporary directory /app/src/recognition and will be returned as JsonResponse
+Post-request for download, clean, process video and prepare .json file with tracking results. The tracking result in .json format will be saved in temporary directory /app/src/recognition and will be returned as JsonResponse
 
 The request structure:
 
@@ -159,7 +190,7 @@ And after processing the video the response is returned:
  "team_ids": [int, int]}
 ```
 
-**Clean Request**
+**Cleaning Request**
 
 Strongly recommended after each service usage. Removes all content in temporary service directories.
 
@@ -218,7 +249,7 @@ ___
 |**Tracking**|convert_dir: str, <br /> clear_dir: str, <br /> final_dir: str||Class for tracking players with DEVA. <br /> Required parameters - <br /> path to directory with converted video, <br /> with frames without game and for tracking results|
 |Tracking.get_bbox_track|video_name: str|str|Tracks players, prepare json file with tracked objects <br /> and its frames, returns the file name|
 |**Numbers**|input_dir: str, <br />clear_dir: str, <br />output_dir: str, emb_mode: str||Class for recognizing numbers. <br /> Required parameters- <br /> path to directory with converted video, with frames without game and for recognizing results  <br /> and the embedding model mode (ResNet or DinoV2)|
-|Numbers.predict_after|class_threshold: float,<br /> ann_path: str, <br />video_path: str, <br />tms: list, <br />box_min_size: int|list|Recognizes numbers on tracked objects, <br />compare numbers with team lists, writes the results to .json file, returns list if dictionaries|
+|Numbers.predict_after|class_threshold: float,<br /> ann_path: str, <br />video_path: str, <br />tms: list, <br />box_min_size: int|list|Recognizes numbers on tracked objects, <br />compare numbers with team lists, writes the results to .json file, returns list of dictionaries|
 
 
   
