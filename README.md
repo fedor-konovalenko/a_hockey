@@ -184,8 +184,9 @@ And after processing the video the response is returned:
  players: [{"player_id": int,
             "team_id": int,
             "number": int,
-            "frames": [int, int, ...]}
-           ]}
+            "frames": [int, int, ...]},
+            ...
+           ]
  "player_numbers": [[int, int, ...], [int, int, ...]],
  "team_ids": [int, int]}
 ```
@@ -216,7 +217,7 @@ The response example:
 ```python
 {"Removed": str,
  "Objects": int,
- "Size": str})
+ "Size": str}
 ```
 
   ____
