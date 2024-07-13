@@ -15,22 +15,8 @@ HOCKEY_LIST = ['hockey', 'ice', 'stick', 'puck', 'goal', 'goalie', 'net', 'skate
                'shootout', ]
 
 
-def write_new_file(file: str, output_file: str, fps=25) -> tuple:
-    """function for writing ready video file
-    TODO: move in the tracker class"""
-    cap = cv2.VideoCapture(file)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
-    output = cv2.VideoWriter(output_file, fourcc, fps, (width, height))
-    cap.release()
-    del cap
-    return output
-
-
 class Helper:
-    """Class with methods for downloading and converting video
-    TODO: replace datetime objects in file names"""
+    """Class with methods for downloading and converting video"""
 
     def __init__(self, input_dir: str, convert_dir: str):
         self.raw = os.path.join(os.path.dirname(__file__), input_dir)
@@ -44,9 +30,9 @@ class Helper:
         return f'{date.today()}_converted.mp4'
 
     def download_file(self, link: str, token: str, path=None) -> str:
-        """function for downloading video from ya.disk
-        TODO: add some other resources: VK, ..."""
+        """function for downloading video from yandex disk"""
         y = yadisk.YaDisk(token=token)
+        # y = yadisk.YaDisk()
         try:
             url = y.get_public_download_link(link, path=path)
         except yadisk.exceptions.PathNotFoundError:
