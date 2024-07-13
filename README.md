@@ -5,7 +5,7 @@ ______
 It is the video-processing service for tracking the hockey players on videos of hockey games.
 It was developed for [Adaptive Hockey (hockey for people with disabilities) Federation](https://paraicehockey.ru/).
 
-<img src="https://github.com/fedor-konovalenko/a_hockey/blob/builder/pic/gof65iwp5uk.jpg" width="900" height="450">
+<img src="https://github.com/fedor-konovalenko/a_hockey/blob/main/pic/gof65iwp5uk.jpg" width="900" height="450">
 
 The main parts of the service:
 - receiving the query from the backend
@@ -16,7 +16,7 @@ The main parts of the service:
 - recognizing players' numbers
 - collecting data and preparing JSON response to the backend
 
-<img src="https://github.com/fedor-konovalenko/a_hockey/blob/builder/pic/sch.jpg" width="1500" height="300">
+<img src="https://github.com/fedor-konovalenko/a_hockey/blob/main/pic/sch.jpg" width="1500" height="300">
 
 *Fig. 1 - The service scheme*
 ___
